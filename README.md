@@ -26,10 +26,21 @@
 
 ## 快速开始
 
-1. 下载本仓库根目录的 **`压缩包工具箱.exe`**（约 12 MB）
-2. 双击运行。首次启动可能会略慢（自解压引擎到临时目录）
-3. 不需要安装任何东西
+**方式一：从 Releases 下载（推荐）**
 
+前往 **[Releases](https://github.com/d5001/archive-toolkit/releases/latest)** 下载：
+
+| 文件 | 说明 |
+| --- | --- |
+| `ArchiveToolkit-v2.0.0.exe` | 主程序，双击运行，无需安装任何东西 |
+| `ArchiveToolkit-v2.0.0-manual-zh.txt` | 使用说明 |
+| `ArchiveToolkit-v2.0.0.exe.sha256` | 校验值，可核对下载完整性 |
+
+**方式二：直接用仓库里的文件**
+
+本仓库根目录也放了一份同版本的 `压缩包工具箱.exe`，clone 下来直接双击即可。
+
+> 首次启动可能略慢（程序会把内嵌的 7-Zip 引擎解压到临时目录）。
 > 杀毒软件可能会误报单文件 exe（PyInstaller 打包的常见现象）。
 > 源码就在 `build/` 里，全部使用 Python 标准库，可自行审阅或重新编译。
 
