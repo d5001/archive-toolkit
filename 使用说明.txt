@@ -52,9 +52,8 @@
 「分卷切割」页签里点一下「4GB」按钮即可；也可以在「打包压缩」页签
 直接把分卷大小设为 4GB，一次性产出分卷压缩包。
 
-示例：11.72 GiB 的压缩包按 4GiB 一卷切割 →
-      .001 = 4.00 GB、.002 = 4.00 GB、.003 = 3.72 GB，共 3 卷。
-
+示例：一个 10 GiB 的压缩包按 4GiB 一卷切割 →
+      .001 = 4.00 GB、.002 = 4.00 GB、.003 = 2.00 GB，共 3 卷。
 
 ■ 四、命令行模式（批处理 / 自动化）
 ----------------------------------------------------------------
@@ -64,10 +63,10 @@
   压缩包工具箱.exe --cli pack "D:\data" -o "D:\out\data.7z" -f 7z --volume 4GB
 
   :: 切割已有压缩包（最大 4GB）
-  压缩包工具箱.exe --cli split "D:\IdeaProjects.zip" --outdir "D:\out" --size 4GB --hash
+  压缩包工具箱.exe --cli split "D:\backup.zip" --outdir "D:\out" --size 4GB --hash
 
   :: 合并还原
-  压缩包工具箱.exe --cli merge "D:\out\IdeaProjects.zip.001"
+  压缩包工具箱.exe --cli merge "D:\out\backup.zip.001"
 
   :: 解压（直接吃 .001 多卷）
   压缩包工具箱.exe --cli extract "D:\out\data.7z.001" -o "D:\restore"
@@ -82,18 +81,18 @@
 ■ 五、把分卷传到网盘再下载合并，需要什么？
 ----------------------------------------------------------------
 【必须有的】分卷本体，一个都不能少：
-      IdeaProjects.zip.001
-      IdeaProjects.zip.002
-      IdeaProjects.zip.003
+      backup.zip.001
+      backup.zip.002
+      backup.zip.003
       文件名必须原样保留。少了任意一卷、或中间缺号，都还原不出来。
       合并只需这些就够了，其它文件没有也能合。
 
 【建议一起传的】两个几百字节的小文件，价值极高：
-      IdeaProjects.zip.splitinfo.json  (502 字节)
+      backup.zip.splitinfo.json  （几百字节）
           记录原始文件名、原始大小、每卷字节数、SHA-256。
           有它，合并时能自动校验「下载回来的东西和原文件一个字节都不差」；
           没有它照样能合并，但只能核对大小，无法校验内容。
-      IdeaProjects.zip 的「合并还原_*.bat」  (229 字节)
+      backup.zip 的「合并还原_*.bat」  （几百字节）
           给没有本工具的接收方用：双击即可用 Windows 自带的 copy /b 合并。
 
 【网盘的坑，按重要性排序】
@@ -108,7 +107,7 @@
 
 2) 文件名被改
    网盘客户端遇到同名文件会自动加后缀，变成
-   「IdeaProjects.zip.001 (1)」这种，合并就会失败。
+   「backup.zip.001 (1)」这种，合并就会失败。
    下载完先核对文件名是否为 xxx.001 / .002 / .003。
 
 3) 别改扩展名
@@ -117,10 +116,10 @@
 
 4) 传输静默损坏
    网盘上传下载偶尔会出错，而且不报错。所以下载完必须校验：
-   用「合并还原」勾选校验 SHA-256（会自动和清单比对），
-   或手工核对 —— 原始压缩包的 SHA-256 应为：
-   6192ffe387871a35e4a4fe420b41774ac9063d9558c1a445fad9ee9f22dbcda3
-   命令行核对：certutil -hashfile IdeaProjects.zip SHA256
+   用「合并还原」勾选校验 SHA-256（会自动和清单 .splitinfo.json 比对），
+   或手工核对 —— 用下面命令算出还原文件的 SHA-256，
+   看它是否等于清单里记录的值（以及是否等于你上传前的原文件）：
+       certutil -hashfile backup.zip SHA256
 
 5) 在线解压无效
    网盘的「在线解压」对字节切割出来的 .001 无效（它只是整个 zip 的一半）。
@@ -134,12 +133,12 @@
 
 【没有本工具时怎么合并（给接收方）】
    Windows 命令提示符：
-      copy /b IdeaProjects.zip.001+IdeaProjects.zip.002+IdeaProjects.zip.003 IdeaProjects.zip
+      copy /b backup.zip.001+backup.zip.002+backup.zip.003 backup.zip
    或双击 合并还原_*.bat
    或 7-Zip / WinRAR：右键点 .001 → 提取到当前文件夹（会自动读后续分卷）
       —— 本工具实测：7-Zip 可以直接从 .001 读出内容，不必先合并
    Linux / macOS：
-      cat IdeaProjects.zip.00* > IdeaProjects.zip
+      cat backup.zip.00* > backup.zip
 
 
 ■ 六、常见问题
@@ -150,14 +149,14 @@ A: 文件没坏，是 Windows 自带解压不支持 ZIP64，属于系统限制�
         · 总大小超过 4GB
         · 内部文件数超过 65,535 个
    而 Windows 资源管理器内置的解压（zipfldr.dll）只实现了 ZIP 2.0 规范，
-   遇到 ZIP64 包必然报“无效”。本案例的包是 11.7GB + 212,696 个条目，
+   遇到 ZIP64 包必然报“无效”。比如一个 11.7GB、含 21 万个条目的包，
    两条全占，所以双击一定打不开。
-   ⚠ 这与分卷、合并无关：原始 IdeaProjects.zip 直接双击，报错一模一样。
+   ⚠ 这与分卷、合并无关：原始 backup.zip 直接双击，报错一模一样。
    正确的打开方式（任选其一）：
      ① 本工具「解压解包」页签 → 选 .001 或选合并出来的 .zip
      ② 7-Zip / WinRAR / Bandizip 右键 → 解压（本机已装 Bandizip）
      ③ PowerShell（.NET 支持 ZIP64）：
-        Expand-Archive -Path "IdeaProjects.zip" -DestinationPath "D:\out"
+        Expand-Archive -Path "backup.zip" -DestinationPath "D:\out"
    本工具在合并这类 zip 后，也会自动弹出上面的提示。
 
 Q: 为什么 .001 用 Windows 自带解压打不开？
@@ -185,10 +184,12 @@ A: 受 RAR 授权限制，任何第三方工具都不能创建 rar，但本软�
 ----------------------------------------------------------------
   压缩包工具箱.exe      主程序（单文件，可单独拷贝到任何地方运行）
   使用说明.txt          本文件
-  分卷输出\             演示：IdeaProjects.zip 按 4GB 切割的测试产物
+  README.md            项目说明
   build\                源码与构建脚本
-    ├─ archive_toolkit.py   程序源码（GUI + 命令行）
-    ├─ build_exe.py         打包脚本
-    ├─ make_icon.py         图标生成
-    ├─ vendor\7zip\         内嵌的 7-Zip 引擎（含 License.txt）
-    └─ _dist\               打包输出目录
+    ├─ archive_toolkit.py   程序源码（GUI + 命令行，全部逻辑）
+    ├─ build_exe.py         打包脚本（PyInstaller）
+    ├─ get_engine.py        下载并提取官方 7-Zip 引擎
+    ├─ make_icon.py         生成 icon.ico
+    ├─ smoke_gui.py         GUI 冒烟测试
+    └─ vendor\7zip\         内嵌的 7-Zip 引擎（含 License.txt）
+  分卷输出\              （运行时生成）分卷存放目录，不随仓库分发

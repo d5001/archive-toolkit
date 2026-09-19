@@ -60,9 +60,9 @@
 分卷命名遵循通用约定，`7-Zip` / `WinRAR` / `HJSplit` 都能识别：
 
 ```
-IdeaProjects.zip.001
-IdeaProjects.zip.002
-IdeaProjects.zip.003
+backup.zip.001
+backup.zip.002
+backup.zip.003
 ```
 
 输出目录会额外生成：
@@ -74,12 +74,12 @@ IdeaProjects.zip.003
 
 ```cmd
 :: Windows
-copy /b IdeaProjects.zip.001+IdeaProjects.zip.002+IdeaProjects.zip.003 IdeaProjects.zip
+copy /b backup.zip.001+backup.zip.002+backup.zip.003 backup.zip
 ```
 
 ```bash
 # Linux / macOS
-cat IdeaProjects.zip.00* > IdeaProjects.zip
+cat backup.zip.00* > backup.zip
 ```
 
 也可以直接用 **7-Zip / WinRAR 右键点 `.001` → 提取**，会自动读取后续分卷，不必先合并。
@@ -96,10 +96,10 @@ cat IdeaProjects.zip.00* > IdeaProjects.zip
 压缩包工具箱.exe --cli pack "D:\data" -o "D:\out\data.7z" -f 7z --volume 4GB
 
 :: 切割已有文件（最大 4GB）
-压缩包工具箱.exe --cli split "D:\IdeaProjects.zip" --outdir "D:\out" --size 4GB --hash
+压缩包工具箱.exe --cli split "D:\backup.zip" --outdir "D:\out" --size 4GB --hash
 
 :: 合并还原（自动校验 SHA-256）
-压缩包工具箱.exe --cli merge "D:\out\IdeaProjects.zip.001"
+压缩包工具箱.exe --cli merge "D:\out\backup.zip.001"
 
 :: 解压（可直接吃 .001 多卷）
 压缩包工具箱.exe --cli extract "D:\out\data.7z.001" -o "D:\restore"
@@ -127,7 +127,7 @@ Windows 资源管理器内置的解压（`zipfldr.dll`）只实现了 ZIP 2.0 �
 - 总大小超过 4 GB
 - 内部文件数超过 65,535 个
 
-例如一个 11.7 GB、含 212,696 个条目的 zip，**原始文件直接双击也是同样的报错**，
+例如一个 11.7 GB、含 21 万个条目的 zip，**原始文件直接双击也是同样的报错**，
 这和分卷、合并没有任何关系。
 
 正确的打开方式：
@@ -137,7 +137,7 @@ Windows 资源管理器内置的解压（`zipfldr.dll`）只实现了 ZIP 2.0 �
 3. PowerShell（.NET 支持 ZIP64）：
 
    ```powershell
-   Expand-Archive -Path "IdeaProjects.zip" -DestinationPath "D:\out"
+   Expand-Archive -Path "backup.zip" -DestinationPath "D:\out"
    ```
 
 本工具在合并出 ZIP64 大包后会自动弹出该提示。
