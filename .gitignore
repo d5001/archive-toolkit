@@ -1,0 +1,28 @@
+# ---------------- 构建产物 ----------------
+build/_pyi/
+build/_dist/
+build/_old/
+__pycache__/
+*.pyc
+*.pyo
+*.spec
+
+# ---------------- 引擎下载缓存 ----------------
+# 这些是 build/get_engine.py 下载的中间文件，可随时重新获取
+build/vendor/*.exe
+build/vendor/*.7z
+build/vendor/7zr.exe
+
+# ---------------- 7-Zip 引擎只保留必需的三件 ----------------
+build/vendor/7zip/*
+!build/vendor/7zip/7z.exe
+!build/vendor/7zip/7z.dll
+!build/vendor/7zip/License.txt
+
+# ---------------- 作者本地工作区 ----------------
+.workbuddy/
+
+# ---------------- 分割测试产物 ----------------
+/分卷输出/
+*.splitinfo.json
+合并还原_*.bat
